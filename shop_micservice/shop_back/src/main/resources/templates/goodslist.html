@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <base th:href="${#request.getContextPath() + '/back/'}"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Insert title here</title>
+    <!-- Invalid Stylesheet. This makes stuff look pretty. Remove it if you want the CSS completely valid -->
+    <!-- Reset Stylesheet -->
+    <link rel="stylesheet" href="resources/css/reset.css" type="text/css"
+          media="screen" />
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="resources/css/style.css" type="text/css"
+          media="screen" />
+    <link rel="stylesheet" href="resources/css/invalid.css" type="text/css"
+          media="screen" />
+
+    <style>
+        .kill{
+            display: none;
+        }
+    </style>
+
+    <!--                       Javascripts                       -->
+    <!-- jQuery -->
+    <script type="text/javascript"
+            src="resources/scripts/jquery-1.9.1.min.js"></script>
+    <!-- jQuery Configuration -->
+    <!--<script type="text/javascript"
+            src="resources/scripts/simpla.jquery.configuration.js"></script>-->
+
+    <!-- 添加jquery弹窗的依赖 -->
+    <script src="resources/widget/dialog/jquery-ui-1.9.2.custom.min.js"></script>
+    <link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+
+    <!-- 引入webuploader依赖 -->
+    <script src="resources/widget/webuploader/webuploader.min.js"></script>
+    <link rel="stylesheet" href="resources/widget/webuploader/webuploader.css"/>
+
+    <!-- 日期控件的js -->
+    <script src="/back/resources/widget/My97DatePicker/WdatePicker.js"></script>
+</head>
+<body>
+<div id="main-content">
+    <div class="content-box">
+
+        <!-- End .content-box-header -->
+        <div class="content-box-content">
+            <div class="tab-content default-tab" id="tab1">
+                <table>
+                    <thead>
+                    <tr>
+                        <th><input class="check-all" type="checkbox" /></th>
+                        <th>编号</th>
+                        <th>商品标题</th>
+                        <th>商品封面</th>
+                        <th>价格</th>
+                        <th>库存</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="goods : ${goodsList}">
+                        <td><input type="checkbox" /></td>
+                        <td th:text="${goods.id}">Lorem ipsum dolor</td>
+                        <td th:text="|${goods.subject}(${goods.type == 1 ? '普通商品' : '秒杀商品'})|">Lorem ipsum dolor</td>
+                        <td><img style="width: 120px; height: 90px" th:src="|goods/showimg?imgPath=${goods.fmUrl}|"/></td>
+                        <td th:text="${#numbers.formatCurrency(goods.price)}">Lorem ipsum dolor</td>
+                        <td th:text="${goods.save}">Consectetur adipiscing</td>
+                        <td>
+                            <!-- Icons --> <a href="#" title="Edit"><img
+                                src="resources/images/icons/pencil.png" alt="Edit" /></a> <a
+                                href="#" title="Delete"><img
+                                src="resources/images/icons/cross.png" alt="Delete" /></a> <a
+                                href="#" title="Edit Meta"><img
+                                src="resources/images/icons/hammer_screwdriver.png"
+                                alt="Edit Meta" /></a>
+                        </td>
+                    </tr>
+                    </tbody>
+
+                    <tfoot>
+                    <tr>
+                        <td colspan="6">
+                            <div class="bulk-actions align-left">
+                                <a class="mybutton" onclick="dialog();">添加商品</a>
+                            </div>
+                            <div class="pagination">
+                                <a href="#" title="First Page">&laquo; First</a><a href="#"
+                                                                                   title="Previous Page">&laquo; Previous</a> <a href="#"
+                                                                                                                                 class="number" title="1">1</a> <a href="#" class="number"
+                                                                                                                                                                   title="2">2</a> <a href="#" class="number current" title="3">3</a>
+                                <a href="#" class="number" title="4">4</a> <a href="#"
+                                                                              title="Next Page">Next &raquo;</a><a href="#"
+                                                                                                                   title="Last Page">Last &raquo;</a>
+                            </div> <!-- End .pagination -->
+                            <div class="clear"></div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <!-- End .content-box-content -->
+    </div>
+</div>
+
+<script>
+    //页面加载后初始化
+    $(function(){
+        // 初始化Web Uploader
+        var uploader = WebUploader.create({
+            // 选完文件后，是否自动上传。
+            auto: true,
+            // swf文件路径
+            swf: "/resources/widget/webuploader/Uploader.swf",
+            // 文件接收服务端。
+            server: 'goods/uploader',
+            // 选择文件的按钮。可选。
+            // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+            pick: '#fm_uploader'
+        });
+
+        //设置上传后的回调方法
+        uploader.on('uploadSuccess', function(file, response){
+            if(response.code == "200"){
+                //设置图片回显
+                $("#fm_img").attr("src", "goods/showimg?imgPath=" + response.data);
+                $("#fmurl").val(response.data);
+            } else {
+                alert("图片上传失败！");
+            }
+        });
+    });
+
+
+    $(function(){
+        // 初始化Web Uploader
+        var uploader = WebUploader.create({
+            // 选完文件后，是否自动上传。
+            auto: true,
+            // swf文件路径
+            swf: "/resources/widget/webuploader/Uploader.swf",
+            // 文件接收服务端。
+            server: 'goods/uploader',
+            // 选择文件的按钮。可选。
+            // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+            pick: '#other_uploader'
+        });
+
+        //设置上传后的回调方法
+        uploader.on('uploadSuccess', function(file, response){
+            if(response.code == "200"){
+                //设置图片回显
+                /*$("#fm_img").attr("src", "/goods/showimg?imgPath=" + response.data);
+                $("#fmurl").val(response.data);*/
+
+                var html = "<img style='width: 120px; height: 120px; margin: 10px' src='goods/showimg?imgPath=" + response.data + "'/>";
+                $("#imgdiv").append(html);
+
+
+                //设置图片的路径隐藏域
+                var htmlinput = "<input type='hidden' name='otherUrl' value='" + response.data + "'/>";
+                $("#imgurl").append(htmlinput);
+            } else {
+                alert("图片上传失败！");
+            }
+        });
+    });
+
+    //弹出框
+    function dialog(){
+        $("#mydialog").dialog({
+            width: 800,
+            height: 600,
+            title: "添加商品",
+            modal: true
+        });
+    }
+
+
+    //选择商品类型
+    function switchType(type){
+        if (type == 1){
+            $(".kill").hide();
+        } else {
+            $(".kill").show();
+        }
+    }
+</script>
+
+
+<!-- 添加商品的弹出框 -->
+<div id="mydialog" style="display: none;">
+
+    <div class="content-box-content">
+        <div class="tab-content default-tab" id="tab2">
+            <form action="goods/insert" method="post">
+                <fieldset>
+                    <!-- Set class to "column-left" or "column-right" on fieldsets to divide the form into columns -->
+                    <!--<p>
+                        <label>Small form input</label> <input
+                            class="text-input small-input" type="text" id="small-input"
+                            name="small-input" /> <span
+                            class="input-notification success png_bg">Successful
+									message</span>
+                        &lt;!&ndash; Classes for input-notification: success, error, information, attention &ndash;&gt;
+                        <br /> <small>A small description of the field</small>
+                    </p>-->
+                    <p>
+                        <label>商品类型</label>
+                        <input type="radio" name="type" value="1" checked onclick="switchType(1);"/>普通商品
+                        <input type="radio" name="type" value="2" onclick="switchType(2);"/>秒杀商品
+                    </p>
+                    <p>
+                        <label>商品标题</label>
+                            <input
+                                class="text-input medium-input datepicker" type="text"
+                                name="subject" />
+                    </p>
+
+                    <p class="kill">
+                        <label style="color: red">*秒杀开始时间</label>
+                        <input
+                                class="text-input medium-input datepicker" type="text"
+                                name="startTime" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss', minDate:'%y-%M-%d {%H+1}:00:00'})"/>
+                    </p>
+
+                    <p class="kill">
+                        <label style="color: red">*秒杀结束时间</label>
+                        <input
+                                class="text-input medium-input datepicker" type="text"
+                                name="endTime" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss', minDate:'%y-%M-%d {%H+2}:00:00'})"/>
+                    </p>
+
+                    <p>
+                        <label>上传封面</label>
+                        <img
+                               id="fm_img" style="width: 120px; height: 120px"/>
+                        <input type="hidden" id="fmurl" name="fmUrl"/>
+
+                        <div id="fm_uploader">上传封面</div>
+                    </p>
+                    <p>
+                        <label>上传其他图片</label>
+                        <div id="other_uploader">上传其他图片</div>
+                        <div id="imgdiv" style="width: 600px; height: 300px; border: darkgray solid 1px; margin-top: 10px"></div>
+                        <div id="imgurl">
+
+                        </div>
+                    </p>
+                    <p>
+                        <label>商品价格</label>
+                        <input
+                                class="text-input medium-input datepicker" type="text"
+                                name="price" />
+                    </p>
+
+                    <p class="kill">
+                        <label style="color: red">*秒杀价格</label>
+                        <input
+                                class="text-input medium-input datepicker" type="text"
+                                name="killPrice" />
+                    </p>
+
+                    <p>
+                        <label>商品库存</label>
+                        <input
+                                class="text-input medium-input datepicker" type="text"
+                                name="save" />
+                    </p>
+
+                    <p class="kill">
+                        <label style="color: red">*秒杀库存</label>
+                        <input
+                                class="text-input medium-input datepicker" type="text"
+                                name="killSave" />
+                    </p>
+
+                   <!-- <p>
+                        <label>Large form input</label> <input
+                            class="text-input large-input" type="text" id="large-input"
+                            name="large-input" />
+                    </p>-->
+
+                    <p>
+                        <label>商品描述</label>
+                        <textarea class="text-input textarea wysiwyg" id="textarea"
+                                  name="info" cols="79" rows="15"></textarea>
+                    </p>
+                    <p>
+                        <button type="submit">添加商品</button>
+                    </p>
+                </fieldset>
+                <div class="clear"></div>
+                <!-- End .clear -->
+            </form>
+        </div>
+        <!-- End #tab2 -->
+    </div>
+
+</div>
+
+<!-- End #main-content -->
+</body>
+</html>

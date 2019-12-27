@@ -1,0 +1,15 @@
+server:
+  port: 80
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      #配置路由规则
+      routes:
+        - id: back
+          uri: lb://MICSERVICE-BACK
+          predicates:
+            - Path=/back/**
+          filters:
+            - StripPrefix=1
