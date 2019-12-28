@@ -86,7 +86,7 @@ public class GoodsController {
         goods.setGoodsKill(goodsSecondkill);
         //调用商品服务，保存图片
         goodsFeign.insertGoods(goods);
-        return "redirect:list";
+        return "redirect:http://localhost/back/goods/list";
     }
 
 

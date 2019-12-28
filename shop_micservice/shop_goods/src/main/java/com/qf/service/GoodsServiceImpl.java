@@ -8,12 +8,19 @@ import com.qf.entity.Goods;
 import com.qf.entity.GoodsImages;
 import com.qf.entity.GoodsSecondkill;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
+@CacheConfig(cacheNames = "goods")
 public class GoodsServiceImpl implements IGoodsService {
 
     @Autowired
@@ -27,6 +34,7 @@ public class GoodsServiceImpl implements IGoodsService {
 
     @Override
     @Transactional
+    @CacheEvict(key = "'kill_' + #goods.goodsKill.startTime.time", condition = "#goods.type == 2")
     public int insertGoods(Goods goods) {
 
         //添加商品
@@ -93,5 +101,41 @@ public class GoodsServiceImpl implements IGoodsService {
         }
 
         return goods;
+    }
+
+    @Override
+    @Cacheable(key = "'kill_' + #date.time")
+    public List<Goods> queryKillList(Date date) {
+
+        System.out.println("查询了数据库！！！");
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("start_time", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date));
+        List<GoodsSecondkill> killList = goodsKillMapper.selectList(queryWrapper);
+
+        List<Goods> goodsList = new ArrayList<>();
+
+        for (GoodsSecondkill goodsSecondkill : killList) {
+            Goods goods = goodsMapper.selectById(goodsSecondkill.getGid());
+            goods.setGoodsKill(goodsSecondkill);
+
+            //查询相关图片
+            QueryWrapper queryWrapper2 = new QueryWrapper();
+            queryWrapper2.eq("gid", goods.getId());
+            List<GoodsImages> images = goodsImagesMapper.selectList(queryWrapper2);
+
+            for (GoodsImages image : images) {
+                if(image.getIsfengmian() == 1){
+                    //是封面
+                    goods.setFmUrl(image.getUrl());
+                } else {
+                    //非封面
+                    goods.addOtherUrl(image.getUrl());
+                }
+            }
+            goodsList.add(goods);
+        }
+
+        return goodsList;
     }
 }

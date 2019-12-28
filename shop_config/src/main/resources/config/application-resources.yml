@@ -1,0 +1,5 @@
+server:
+  port: 10086
+spring:
+  application:
+    name: micservice-resources

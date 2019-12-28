@@ -7,9 +7,25 @@ spring:
     gateway:
       #配置路由规则
       routes:
+        #后台服务的路由
         - id: back
           uri: lb://MICSERVICE-BACK
           predicates:
             - Path=/back/**
           filters:
             - StripPrefix=1
+        #秒杀服务的路由规则
+        - id: kill
+          uri: lb://MICSERVICE-KILL
+          predicates:
+            - Path=/kill/**
+        #静态资源服务的路由规则
+        - id: resources
+          uri: lb://MICSERVICE-RESOURCES
+          predicates:
+            - Path=/**/*.js,/**/*.css,/**/*.png,/**/*.jpg,/**/*.gif,/**/*.jepg
+        #首页服务的路由规则
+        - id: front
+          uri: lb://MICSERVICE-FRONT
+          predicates:
+            - Path=/**
