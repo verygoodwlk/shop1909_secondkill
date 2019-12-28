@@ -628,7 +628,7 @@
                         for(var i = 0; i < data.data.length; i++){
                              html += "<li>\n" +
                                 "<dl>\n" +
-                                "<dt><a><img style='width: 150px; height: 120px' src=\"/back/goods/showimg?imgPath=" + data.data[i].fmUrl + "\" /></a></dt>\n" +
+                                "<dt><a href='/html/" + data.data[i].id + ".html'><img style='width: 150px; height: 120px' src=\"/back/goods/showimg?imgPath=" + data.data[i].fmUrl + "\" /></a></dt>\n" +
                                 "<dd><a>" + data.data[i].subject + "</a></dd>\n" +
                                 "<dd> 原价：<em><del>￥" + data.data[i].price + "</del></em>元</dd>\n" +
                                 "<dd> 秒杀价：<em>￥" + data.data[i].goodsKill.killPrice + "</em>元</dd>\n" +

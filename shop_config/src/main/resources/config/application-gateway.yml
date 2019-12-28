@@ -18,7 +18,7 @@ spring:
         - id: kill
           uri: lb://MICSERVICE-KILL
           predicates:
-            - Path=/kill/**
+            - Path=/kill/**,/html/**
         #静态资源服务的路由规则
         - id: resources
           uri: lb://MICSERVICE-RESOURCES

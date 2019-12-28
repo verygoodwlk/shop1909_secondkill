@@ -7,6 +7,7 @@ import com.qf.dao.GoodsMapper;
 import com.qf.entity.Goods;
 import com.qf.entity.GoodsImages;
 import com.qf.entity.GoodsSecondkill;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -31,6 +32,9 @@ public class GoodsServiceImpl implements IGoodsService {
 
     @Autowired
     private GoodsKillMapper goodsKillMapper;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     @Transactional
@@ -64,7 +68,8 @@ public class GoodsServiceImpl implements IGoodsService {
             goodsKillMapper.insert(goodsKill);
         }
 
-        //TODO 将商品信息放入rabbitmq， 同步到索引库中
+        //TODO 将商品信息放入rabbitmq， 同步到索引库中,以及生成静态页面
+        rabbitTemplate.convertAndSend("goods_exchange", "", goods);
 
         return 1;
     }

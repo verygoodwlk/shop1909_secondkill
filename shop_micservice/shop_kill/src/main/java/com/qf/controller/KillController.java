@@ -57,4 +57,13 @@ public class KillController {
         return new ResultData<List<Goods>>().setCode(ResultData.ResultCodeList.OK)
                 .setData(goodsList);
     }
+
+    /**
+     * 获取当前时间
+     * @return
+     */
+    @RequestMapping("/queryNow")
+    public ResultData<Date> queryNow(){
+        return new ResultData<Date>().setCode(ResultData.ResultCodeList.OK).setData(new Date());
+    }
 }

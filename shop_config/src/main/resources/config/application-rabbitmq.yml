@@ -1,0 +1,10 @@
+spring:
+  rabbitmq:
+    host: 192.168.195.188
+    username: admin
+    password: admin
+    virtual-host: /admin
+    listener:
+      simple:
+        #设置rabbitmq的消费者手动确认
+        acknowledge-mode: manual
