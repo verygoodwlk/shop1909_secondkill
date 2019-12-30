@@ -7,11 +7,13 @@ import com.qf.dao.GoodsMapper;
 import com.qf.entity.Goods;
 import com.qf.entity.GoodsImages;
 import com.qf.entity.GoodsSecondkill;
+import com.qf.util.DateUtil;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,9 @@ public class GoodsServiceImpl implements IGoodsService {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     @Transactional
@@ -66,6 +71,10 @@ public class GoodsServiceImpl implements IGoodsService {
             GoodsSecondkill goodsKill = goods.getGoodsKill();
             goodsKill.setGid(goods.getId());
             goodsKillMapper.insert(goodsKill);
+
+            //将秒杀商品id放入redis集合中
+            String timeSuffix = DateUtil.date2String(goodsKill.getStartTime(), "yyMMddHH");
+            stringRedisTemplate.opsForSet().add("killgoods_" + timeSuffix, goods.getId() + "");
         }
 
         //TODO 将商品信息放入rabbitmq， 同步到索引库中,以及生成静态页面

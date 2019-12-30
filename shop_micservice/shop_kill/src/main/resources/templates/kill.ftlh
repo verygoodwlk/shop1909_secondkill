@@ -12,6 +12,11 @@
     <script type="text/javascript" src="js/jquery.js" ></script>
     <script type="text/javascript" src="js/topNav.js" ></script>
     <script type="text/javascript" src="js/shop_goods.js" ></script>
+
+    <!-- 添加jquery弹窗的依赖 -->
+    <script src="widget/dialog/jquery-ui-1.9.2.custom.min.js"></script>
+    <link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+
 </head>
 <body>
 <!-- Header  -wll-2013/03/24 -->
@@ -607,7 +612,7 @@
                         <strong style="color: red">倒计时：<span id="djs">00:00:00</span></strong>
                     </span>
                     <span>
-                        <a href="" class="goods_sub goods_sub_gou" >加入购物车</a>
+                        <button id="gobtn" disabled="disabled">即将开始</button>
                     </span>
                 </li>
             </ul>
@@ -616,6 +621,28 @@
     <!-- 商品展示 End -->
 
     <script type="text/javascript">
+
+        /**
+         * 立即抢购
+         */
+        function goBtn(){
+            //设置按钮的点击时间
+            $("#gobtn").click(function(){
+
+                //弹框 - 输入验证码
+                $("#code_dialog").dialog({
+                    title:"请输入验证码",
+                    width: 200,
+                    height: 160,
+                    modal: true
+                });
+
+            });
+
+            //开放按钮
+            $("#gobtn").removeAttr("disabled");
+            $("#gobtn").html("立即抢购");
+        }
 
         //商品开始抢购的时间
         var startTime = new Date('${goods.goodsKill.startTime?datetime}');
@@ -626,6 +653,9 @@
         //计数器
         var count = 0;
 
+        //定时器对象
+        var mytime;
+
         /**
          * 倒计时功能
          */
@@ -635,7 +665,8 @@
 
             if(times <= 0){
                 //秒杀已经开始了
-                alert("秒杀开始了！");
+                // alert("秒杀开始了！");
+                goBtn();
                 return;
             }
 
@@ -649,7 +680,7 @@
             var djsTime = formatTime(h) + ":" + formatTime(m) + ":" + formatTime(s);
             $("#djs").html(djsTime);
 
-            setTimeout(function(){
+            mytime = setTimeout(function(){
 
                 if(count >= 60){
                     console.log("主动获取服务器的时间！");
@@ -703,8 +734,44 @@
             //开始倒计时
             djs();
         });
+
+        /**
+         * 监听到浏览器的隐藏和显示时间
+         */
+        document.addEventListener('visibilitychange',function(){ //浏览器切换事件
+            if(document.visibilityState=='hidden') { //状态判断
+                //console.log("隐藏了！！");
+
+                //停止定时器
+                clearTimeout(mytime);
+            }else {
+                //console.log("可见了！！");
+                //获取当前时间
+                getServerNow();
+                //开始倒计时
+                djs();
+            }
+        });
+
+        //更新验证码
+        function update_code(img){
+            img.src = "/kill/code?t=" + new Date().getTime();
+        }
+
+        //抢购下单
+        function xiadan(){
+            var code = $("#mycode").val();
+            location.href = "/kill/qiangGou?gid=${goods.id}&code=" + code;
+        }
     </script>
 
+
+    <!-- 验证码的弹框 -->
+    <div id="code_dialog" style="display: none;">
+        验证码:<input id="mycode" name="code" style="width: 60px"/>
+        <img src="/kill/code" onclick="update_code(this);"/> <br/><br/>
+        <button type="button" onclick="xiadan();">立即抢购</button>
+    </div>
 
     <div class="clear mt15"></div>
     <!-- Goods Left -->
