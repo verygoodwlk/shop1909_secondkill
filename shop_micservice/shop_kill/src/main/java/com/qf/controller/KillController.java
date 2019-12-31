@@ -10,9 +10,7 @@ import com.qf.feign.GoodsFeign;
 import com.qf.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -40,13 +38,6 @@ public class KillController {
     @Autowired
     private DefaultKaptcha defaultKaptcha;
 
-    private String lua = "local gid = ARGV[1]\n" +
-            "local times = redis.call('get', 'killgoods_now')\n" +
-            "local flag = 0\n" +
-            "if times then \n" +
-            "flag = redis.call('sismember', 'killgoods_'..times, gid)\n" +
-            "end\n" +
-            "return flag";
 
     /**
      * 查询当前的秒杀场次
@@ -105,40 +96,11 @@ public class KillController {
      */
     @IsLogin(mustLogin = true)
     @RequestMapping("/qiangGou")
-    public String qiangGou(Integer gid, String code, @CookieValue(name = "codeToken", required = false) String codeToken){
-
-        //判断验证码功能
-        String ocode = redisTemplate.opsForValue().get(codeToken);
-        if(code == null || !code.equals(ocode)){
-            return "error2";
-        }
-
-
-        //判断当前秒杀是否开始
-//        long start = System.currentTimeMillis();
-
-//        String times = redisTemplate.opsForValue().get("killgoods_now");
-//        boolean flag = false;
-//        if(times != null){
-//            flag = redisTemplate.opsForSet().isMember("killgoods_" + times, gid + "");
-//        }
-
-        Long result = redisTemplate.execute(new DefaultRedisScript<>(lua, Long.class), null, gid + "");
-
-        //lua脚本
-
-//        long end = System.currentTimeMillis();
-//        System.out.println("判断是否提前秒杀的耗时：" + (end - start));
-
-        if(result == 0){
-            //秒杀商品未开始秒杀
-            return "error";
-        }
+    public String qiangGou(Integer gid){
 
         //获得登录的用户信息
         User user = UserHolder.getUser();
         System.out.println(user.getNickname() + "抢购了id为" + gid + "商品！");
-
 
         return "succ";
     }

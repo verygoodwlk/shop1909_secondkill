@@ -15,6 +15,13 @@ spring:
           filters:
             - StripPrefix=1
         #秒杀服务的路由规则
+        - id: kill2
+          uri: lb://MICSERVICE-KILL
+          predicates:
+            - Path=/kill/qiangGou
+          filters:
+            - myCode
+            - myKill
         - id: kill
           uri: lb://MICSERVICE-KILL
           predicates:
