@@ -1,0 +1,15 @@
+feign:
+  client:
+    config:
+      default:
+        #Feign的连接超时和读取超时会覆盖掉，ribbon的超时设置
+        #连接超时时间
+        connectTimeout: 4000
+        #读取超时时间
+        readTimeout: 4000
+ribbon:
+  #重试以ribbon的配置为主
+  # 同一个微服务其他实例的最大重试次数，不包括第一次调用的实例。默认值为1
+  MaxAutoRetriesNextServer: 0
+  # 是否开启请求的重试
+  OkToRetryOnAllOperations: false

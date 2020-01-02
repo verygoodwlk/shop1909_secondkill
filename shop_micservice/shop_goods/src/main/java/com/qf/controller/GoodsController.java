@@ -5,6 +5,7 @@ import com.qf.service.IGoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
@@ -45,5 +46,15 @@ public class GoodsController {
         System.out.println("商品服务获得时间对象：" + date);
         List<Goods> goodsList = goodsService.queryKillList(date);
         return goodsList;
+    }
+
+    /**
+     * 根据id查询秒杀商品信息
+     * @param gid
+     * @return
+     */
+    @RequestMapping("/queryKillById")
+    public Goods queryById(@RequestParam("gid") Integer gid){
+        return goodsService.queryById(gid);
     }
 }

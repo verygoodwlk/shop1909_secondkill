@@ -5,6 +5,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -19,8 +20,14 @@ public class MyRabbitListener {
     @Autowired
     private Configuration configuration;
 
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
     @RabbitListener(queues = "kill_queue")
     public void msgHandler(Goods goods){
+        //同步商品的库存到redis中
+        redisTemplate.opsForValue().set("gsave_" + goods.getId(), goods.getGoodsKill().getKillSave() + "");
+
         //生成静态页面
         System.out.println("接收到消息生成静态页:" + goods);
 
@@ -51,7 +58,5 @@ public class MyRabbitListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 }

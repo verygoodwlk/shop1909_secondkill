@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/js/jquery.js"></script>
+
+    <script>
+        $(function(){
+            lunxun();
+        });
+
+        /**
+         * 轮询查询当前位置
+         */
+        function lunxun(){
+
+            $.ajax({
+                type:"GET",
+                url: "/kill/getRank",
+                data: {"gid": [[${gid}]]},
+                async: false,//同步
+                success: function(data){
+                    if(data.code == "200"){
+                        //抢购成功
+                        alert("抢购成功！");
+                        location.href = "http://www.baidu.com";
+                    } else {
+                        //还在排队
+                        var rank = data.data;
+                        $("#rank").html(rank);
+                    }
+                }
+            });
+
+            //轮询调用
+            setTimeout(function () {
+                lunxun();
+            }, 1000 * 3)
+
+        }
+    </script>
+
+</head>
+<body>
+<h1>排队中..., 当前位置：<span id="rank">??</span></h1>
+</body>
+</html>

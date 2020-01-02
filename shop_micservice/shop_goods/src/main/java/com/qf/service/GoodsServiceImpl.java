@@ -152,4 +152,38 @@ public class GoodsServiceImpl implements IGoodsService {
 
         return goodsList;
     }
+
+    @Override
+    public int updateKillSave(Integer gid, Integer gnumber) {
+        return goodsKillMapper.updateKillSave(gid, gnumber);
+    }
+
+    @Override
+    public Goods queryById(Integer gid) {
+        //查询所有商品
+        Goods goods = goodsMapper.selectById(gid);
+
+        //查询相关图片
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("gid", goods.getId());
+        List<GoodsImages> images = goodsImagesMapper.selectList(queryWrapper);
+
+        for (GoodsImages image : images) {
+            if(image.getIsfengmian() == 1){
+                //是封面
+                goods.setFmUrl(image.getUrl());
+            } else {
+                //非封面
+                goods.addOtherUrl(image.getUrl());
+            }
+        }
+
+        //处理秒杀信息
+        if (goods.getType() == 2){
+            GoodsSecondkill goodsSecondkill = goodsKillMapper.selectOne(queryWrapper);
+            goods.setGoodsKill(goodsSecondkill);
+        }
+
+        return goods;
+    }
 }

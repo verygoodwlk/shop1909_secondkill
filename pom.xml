@@ -9,6 +9,7 @@
         <module>shop_exception</module>
         <module>shop_micservice</module>
         <module>shop_feign</module>
+        <module>shop_micservice/shop_orders</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

@@ -12,4 +12,8 @@ public interface IGoodsService {
     List<Goods> goodsList();
 
     List<Goods> queryKillList(Date date);
+
+    int updateKillSave(Integer gid, Integer gnumber);
+
+    Goods queryById(Integer gid);
 }
