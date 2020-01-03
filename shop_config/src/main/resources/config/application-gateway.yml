@@ -41,3 +41,12 @@ spring:
           uri: lb://MICSERVICE-FRONT
           predicates:
             - Path=/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                #限流规则
+                key-resolver: '#{@remoteAddrKeyResolver}'
+                #放令牌的速率 1S/5个
+                redis-rate-limiter.replenishRate: 1
+                #令牌桶的容量 总共10个
+                redis-rate-limiter.burstCapacity: 1
