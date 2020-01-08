@@ -1,5 +1,6 @@
 package com.qf.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.qf.aop.IsLogin;
 import com.qf.aop.UserHolder;
@@ -207,5 +208,50 @@ public class KillController {
 
         //当前正在排队
         return new ResultData<String>().setCode(ResultData.ResultCodeList.ERROR).setData((rank + 1) + "");
+    }
+
+    /**
+     * 秒杀提醒/取消提醒
+     * @return
+     */
+    @IsLogin(mustLogin = true)
+    @RequestMapping("/tixing")
+    @ResponseBody
+    public ResultData<String> tixing(Integer gid, Integer flag){
+
+        User user = UserHolder.getUser();
+
+        //通过gid获得商品信息
+        Goods goods = goodsFeign.queryById(gid);
+
+        //获得秒杀开始时间
+        Date startTime = goods.getGoodsKill().getStartTime();
+        //获得10分钟以前的时间
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startTime);
+        calendar.set(Calendar.MINUTE, -10);
+        Date tixingTime = calendar.getTime();
+
+        //秒杀的开始年月日
+        String yyMMdd = DateUtil.date2String(tixingTime, "yyMMdd");
+
+        //秒杀开始的时分（前10分钟）
+        String hhmm = DateUtil.date2String(tixingTime, "HHmm");
+
+        //提醒的内容
+        Map<String, Integer> map = new HashMap<>();
+        map.put("uid", user.getId());
+        map.put("gid", gid);
+
+        if(flag == 1){
+            //设置提醒
+            redisTemplate.opsForZSet().add("tixing_" + yyMMdd, JSON.toJSONString(map), Double.valueOf(hhmm));
+
+        } else {
+            //取消提醒
+            redisTemplate.opsForZSet().remove("tixing_" + yyMMdd, JSON.toJSONString(map));
+        }
+
+        return new ResultData<String>().setCode(ResultData.ResultCodeList.OK);
     }
 }

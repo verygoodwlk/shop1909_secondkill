@@ -609,6 +609,9 @@
                 <li style="padding:20px 0;">
                     <label>&nbsp;</label>
                     <span>
+                        <button id="tixingBtn" alt="0">提醒我</button>
+                    </span>
+                    <span>
                         <strong style="color: red">倒计时：<span id="djs">00:00:00</span></strong>
                     </span>
                     <span>
@@ -621,6 +624,94 @@
     <!-- 商品展示 End -->
 
     <script type="text/javascript">
+
+        $(function(){
+            //手动设置按钮的点击时间
+            $("#tixingBtn").click(tixing);
+
+            var gid = ${goods.id};
+
+            //获取cookie
+            var result = getCookie("tixing_" + gid);
+            if(result){
+                //提醒过了
+                $("#tixingBtn").html("取消提醒");
+                $("#tixingBtn").attr("alt", 1);
+            } else {
+                //还未提醒
+                $("#tixingBtn").html("提醒我");
+                $("#tixingBtn").attr("alt", 0);
+            }
+        });
+
+        /**
+         * 提醒/取消提醒
+         */
+        function tixing(){
+
+            var flag = $("#tixingBtn").attr("alt");
+
+            //获取商品id
+            var gid = ${goods.id};
+
+            if(flag == 0){
+                //保存当前添加提醒的商品id到浏览器cookie
+                setCookie("tixing_" + gid, true);
+
+                //修改页面按钮
+                $("#tixingBtn").html("取消提醒");
+                $("#tixingBtn").attr("alt", 1);
+                flag = 1;
+            } else {
+
+                //删除cookie
+                delCookie("tixing_" + gid);
+
+                //修改页面按钮
+                $("#tixingBtn").html("提醒我");
+                $("#tixingBtn").attr("alt", 0);
+                flag = 0;
+            }
+
+            //ajax通知后台进行商品提醒
+            $.ajax({
+                url:"/kill/tixing",
+                data: {"gid":gid, "flag":flag},
+                success: function(data){
+                    if(data.code == "200"){
+                        alert("秒杀消息提醒" + (flag == 1 ? "设置" : "取消") + "成功！");
+                    }
+                }
+            });
+        }
+
+        function setCookie(name,value)
+        {
+            var Days = 30;
+            var exp = new Date();
+            exp.setTime(exp.getTime() + Days*24*60*60*1000);
+            document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+        }
+
+        //读取cookies
+        function getCookie(name)
+        {
+            var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+            if(arr=document.cookie.match(reg))
+                return unescape(arr[2]);
+            else
+                return null;
+        }
+
+        //删除cookies
+        function delCookie(name)
+        {
+            var exp = new Date();
+            exp.setTime(exp.getTime() - 1);
+            var cval=getCookie(name);
+            if(cval!=null)
+                document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+        }
 
         /**
          * 立即抢购

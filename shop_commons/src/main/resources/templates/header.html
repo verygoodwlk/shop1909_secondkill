@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-
 </head>
 <body>
     <div th:fragment="myheader">
+        <script src="js/websocket.js"></script>
         <script>
             //进行登录认证的操作
             $(function(){
@@ -19,6 +19,26 @@
                         if(data.code == "200"){
                             //已经登录
                             $("#pid").html(data.data.nickname + "您好，欢迎来到<b>ShopCZ商城</b>  <a href='http://www.kill.com/sso/logout'>注销</a>");
+
+                            //初始化WebSocket
+                            initWs({
+                                url: "ws://127.0.0.1:30000/msg",
+                                mymessage: function(msgObj){
+                                    console.log("自定义的方法接收到消息：" + JSON.stringify(msgObj));
+                                    if(msgObj.type == 3){
+                                        //秒杀提醒消息
+                                        alert("提醒消息：您订阅的商品[" + msgObj.data.goods.subject + "]即将开抢，请做好准备....");
+                                    }
+                                },
+                                myopen: function(){
+                                    //连接服务器，注册当前的用户信息
+                                    var msg = {"type":1, "data":data.data.id};
+                                    sendMsgObj(msg);
+                                },
+                                heartTime: 10000,
+                                closeTime: 20000
+                            });
+
                         } else {
                             $("#pid").html("" +
                                 "[<a onclick='mylogin();'>登录</a>]" +
@@ -68,6 +88,8 @@
 
                 location.href="http://www.kill.com/sso/toLogin?returnUrl=" + returnUrl;
             }
+
+
 
         </script>
 
